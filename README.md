@@ -1,1 +1,1 @@
-# GestaoMedalhas
+# Gestão de Medalhas
