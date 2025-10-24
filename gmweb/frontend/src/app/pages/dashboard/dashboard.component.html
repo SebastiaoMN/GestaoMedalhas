@@ -1,0 +1,167 @@
+<mat-card class="filtro-card">
+  <mat-card-title>Consulta de Agraciados</mat-card-title>
+  <mat-card-content>
+    <form [formGroup]="filtroForm" class="filtro-form" (ngSubmit)="buscar()">
+      <mat-form-field appearance="outline">
+        <mat-label>Tipo de medalha</mat-label>
+        <mat-select formControlName="tipo">
+          <mat-option value="HELIO_COSTA">Medalha Des. Hélio Costa</mat-option>
+          <mat-option value="COLAR_MERITO">Medalha Colar do Mérito</mat-option>
+        </mat-select>
+      </mat-form-field>
+
+      <mat-form-field appearance="outline">
+        <mat-label>Ano</mat-label>
+        <input matInput type="number" formControlName="ano" min="1900" placeholder="Opcional" />
+      </mat-form-field>
+
+      <mat-form-field appearance="outline" class="nome-field">
+        <mat-label>Nome</mat-label>
+        <input matInput formControlName="nome" placeholder="Buscar por nome" />
+      </mat-form-field>
+
+      <div class="filtro-acoes">
+        <button mat-flat-button color="primary" type="submit">Buscar</button>
+        <button
+          mat-button
+          type="button"
+          (click)="filtroForm.reset({ tipo: 'HELIO_COSTA', ano: null, nome: '' }); buscar();"
+        >
+          Limpar
+        </button>
+      </div>
+    </form>
+  </mat-card-content>
+</mat-card>
+
+<mat-card class="cadastro-card">
+  <mat-card-title>{{ selecionado() ? 'Editar agraciado' : 'Novo agraciado' }}</mat-card-title>
+  <mat-card-content>
+    <form [formGroup]="cadastroForm" class="cadastro-form">
+      <mat-form-field appearance="outline" class="nome-field">
+        <mat-label>Nome completo</mat-label>
+        <input matInput formControlName="nome" required />
+        <mat-error *ngIf="cadastroForm.get('nome')?.hasError('required')">
+          Informe o nome do agraciado
+        </mat-error>
+      </mat-form-field>
+
+      <mat-form-field appearance="outline">
+        <mat-label>Ano</mat-label>
+        <input matInput type="number" formControlName="ano" required />
+      </mat-form-field>
+
+      <mat-form-field appearance="outline">
+        <mat-label>CPF</mat-label>
+        <input matInput formControlName="cpf" placeholder="Somente números" />
+      </mat-form-field>
+
+      <mat-form-field appearance="outline">
+        <mat-label>Sexo</mat-label>
+        <mat-select formControlName="sexo">
+          <mat-option [value]="''">Não informado</mat-option>
+          <mat-option *ngFor="let sexo of sexos()" [value]="sexo.codigo">{{ sexo.descricao }}</mat-option>
+        </mat-select>
+      </mat-form-field>
+
+      <mat-form-field appearance="outline">
+        <mat-label>Tipo de medalha</mat-label>
+        <mat-select formControlName="tipoMedalha">
+          <mat-option value="HELIO_COSTA">Medalha Des. Hélio Costa</mat-option>
+          <mat-option value="COLAR_MERITO">Medalha Colar do Mérito</mat-option>
+        </mat-select>
+      </mat-form-field>
+
+      <mat-form-field appearance="outline">
+        <mat-label>Cargo / Profissão</mat-label>
+        <mat-select formControlName="cargoProfissaoId" required>
+          <mat-option *ngFor="let cargo of cargos()" [value]="cargo.codigo">{{ cargo.descricao }}</mat-option>
+        </mat-select>
+      </mat-form-field>
+
+      <mat-form-field appearance="outline" [class.disabled-field]="somenteLeituraComarca()">
+        <mat-label>Comarca</mat-label>
+        <mat-select formControlName="comarcaId" [disabled]="somenteLeituraComarca()">
+          <mat-option *ngFor="let comarca of comarcas()" [value]="comarca.codigo">{{ comarca.nome }}</mat-option>
+        </mat-select>
+      </mat-form-field>
+
+      <div class="toggle-grid">
+        <mat-slide-toggle formControlName="enviado">Medalha enviada</mat-slide-toggle>
+        <mat-slide-toggle formControlName="disponivelInternet">Disponível na internet</mat-slide-toggle>
+        <mat-slide-toggle formControlName="inMemorian">In memoriam</mat-slide-toggle>
+        <mat-slide-toggle formControlName="homonimo">Homônimo</mat-slide-toggle>
+      </div>
+    </form>
+  </mat-card-content>
+  <mat-card-actions>
+    <button mat-flat-button color="primary" (click)="salvar()">Salvar</button>
+    <button mat-button type="button" (click)="novo()">Novo</button>
+  </mat-card-actions>
+</mat-card>
+
+<mat-card>
+  <mat-card-title>Resultado</mat-card-title>
+  <mat-card-content>
+    <table mat-table [dataSource]="agraciados()" class="mat-elevation-z2" *ngIf="agraciados().length; else emptyState">
+      <ng-container matColumnDef="codigo">
+        <th mat-header-cell *matHeaderCellDef>Código</th>
+        <td mat-cell *matCellDef="let agraciado">{{ agraciado.codigo }}</td>
+      </ng-container>
+
+      <ng-container matColumnDef="nome">
+        <th mat-header-cell *matHeaderCellDef>Nome</th>
+        <td mat-cell *matCellDef="let agraciado">{{ agraciado.nome }}</td>
+      </ng-container>
+
+      <ng-container matColumnDef="ano">
+        <th mat-header-cell *matHeaderCellDef>Ano</th>
+        <td mat-cell *matCellDef="let agraciado">{{ agraciado.ano }}</td>
+      </ng-container>
+
+      <ng-container matColumnDef="cargo">
+        <th mat-header-cell *matHeaderCellDef>Cargo / Profissão</th>
+        <td mat-cell *matCellDef="let agraciado">{{ agraciado.cargoProfissaoDescricao || '-' }}</td>
+      </ng-container>
+
+      <ng-container matColumnDef="comarca">
+        <th mat-header-cell *matHeaderCellDef>Comarca</th>
+        <td mat-cell *matCellDef="let agraciado">{{ agraciado.comarcaNome || '-' }}</td>
+      </ng-container>
+
+      <ng-container matColumnDef="enviado">
+        <th mat-header-cell *matHeaderCellDef>Enviado</th>
+        <td mat-cell *matCellDef="let agraciado">
+          <mat-icon color="primary" *ngIf="agraciado.enviado">check_circle</mat-icon>
+          <mat-icon color="warn" *ngIf="!agraciado.enviado">cancel</mat-icon>
+        </td>
+      </ng-container>
+
+      <ng-container matColumnDef="internet">
+        <th mat-header-cell *matHeaderCellDef>Internet</th>
+        <td mat-cell *matCellDef="let agraciado">
+          <mat-icon color="primary" *ngIf="agraciado.disponivelInternet">public</mat-icon>
+          <mat-icon color="warn" *ngIf="!agraciado.disponivelInternet">public_off</mat-icon>
+        </td>
+      </ng-container>
+
+      <ng-container matColumnDef="acoes">
+        <th mat-header-cell *matHeaderCellDef>Ações</th>
+        <td mat-cell *matCellDef="let agraciado">
+          <button mat-icon-button (click)="selecionar(agraciado)" matTooltip="Editar">
+            <mat-icon>edit</mat-icon>
+          </button>
+          <button mat-icon-button color="warn" (click)="excluir(agraciado)" matTooltip="Excluir">
+            <mat-icon>delete</mat-icon>
+          </button>
+        </td>
+      </ng-container>
+
+      <tr mat-header-row *matHeaderRowDef="displayedColumns"></tr>
+      <tr mat-row *matRowDef="let row; columns: displayedColumns;"></tr>
+    </table>
+    <ng-template #emptyState>
+      <p>Nenhum agraciado encontrado para os filtros informados.</p>
+    </ng-template>
+  </mat-card-content>
+</mat-card>
