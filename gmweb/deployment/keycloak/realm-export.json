@@ -27,21 +27,17 @@
   ],
   "roles": {
     "realm": [
-      {
-        "name": "medals-reader"
-      },
-      {
-        "name": "medals-writer"
-      }
+      { "name": "agraciados-reader" },
+      { "name": "agraciados-writer" },
+      { "name": "cadastros-reader" },
+      { "name": "cadastros-writer" }
     ],
     "client": {
       "gmweb-api": [
-        {
-          "name": "medals:read"
-        },
-        {
-          "name": "medals:write"
-        }
+        { "name": "agraciados:read" },
+        { "name": "agraciados:write" },
+        { "name": "cadastros:read" },
+        { "name": "cadastros:write" }
       ]
     }
   }

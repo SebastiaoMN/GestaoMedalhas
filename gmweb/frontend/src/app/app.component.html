@@ -1,8 +1,8 @@
 <mat-toolbar color="primary" class="app-toolbar">
   <span>{{ title }}</span>
   <span class="spacer"></span>
-  <button mat-button (click)="login()">Entrar</button>
-  <button mat-button (click)="logout()">Sair</button>
+  <button mat-button (click)="login()" *ngIf="!loggedIn">Entrar</button>
+  <button mat-button (click)="logout()" *ngIf="loggedIn">Sair</button>
 </mat-toolbar>
 <main class="app-content">
   <router-outlet></router-outlet>

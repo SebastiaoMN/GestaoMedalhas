@@ -1,6 +1,6 @@
 # GMWeb Front-end
 
-Angular-based single-page application that provides a responsive UI for medal management.
+Angular-based single-page application that reproduces the Delphi workflows for cadastro, consulta e manutenção de agraciados.
 
 ## Tech Stack
 - Angular 17
@@ -13,20 +13,10 @@ Angular-based single-page application that provides a responsive UI for medal ma
 2. Run `npm install` inside this folder.
 3. Start the dev server with `npm start` (proxy configured for `/api`).
 
-## Structure
-```
-frontend/
-├── angular.json
-├── package.json
-├── tsconfig.json
-└── src/
-    ├── app/
-    │   ├── app.component.*
-    │   ├── app.module.ts
-    │   └── core/
-    ├── assets/
-    └── environments/
-```
+## Highlights
+- Formulários reativos com validações equivalentes às telas Delphi.
+- Listagem com filtros por tipo de medalha, ano e nome.
+- Acesso aos cadastros auxiliares (cargos/profissões, comarcas, sexos) via Material components.
 
 ## Security
 - OAuth2/OIDC login via Keycloak JavaScript adapter.

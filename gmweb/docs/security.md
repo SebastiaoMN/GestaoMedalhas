@@ -3,7 +3,7 @@
 This document tracks the OWASP Top 10 coverage for the GMWeb platform.
 
 ## A01: Broken Access Control
-- Fine-grained authorization powered by Keycloak scopes (`medals:read`, `medals:write`).
+- Fine-grained authorization powered by Keycloak scopes (`agraciados:read`, `agraciados:write`, `cadastros:read`, `cadastros:write`).
 - Method-level security via `@PreAuthorize`.
 
 ## A02: Cryptographic Failures

@@ -1,5 +1,13 @@
 # GMWeb Backend
 
+Spring Boot service that expõe as APIs REST para cadastro/consulta de agraciados, integra com Oracle, Keycloak e sistemas legados.
+
+## Features
+- Modelagem JPA fiel às tabelas `AGRACIADOS`, `CARGO_PROFISSAO` e `COMARCA`.
+- Regras de negócio migradas do Delphi (CPF, homônimos, exclusão lógica, limite por comarca/ano).
+- OAuth2 Resource Server preconfigurado para validação de JWTs do Keycloak.
+- Conectividade Oracle via Spring Data JPA + consultas JDBC pontuais.
+- Documentação OpenAPI via SpringDoc e health check em `/api/health`.
 Spring Boot service that exposes RESTful APIs and orchestrates integrations with Oracle Database, Keycloak, and legacy systems.
 
 ## Features

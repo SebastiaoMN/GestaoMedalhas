@@ -1,6 +1,46 @@
 mat-card {
-  max-width: 960px;
-  margin: 0 auto;
+  max-width: 1100px;
+  margin: 1.5rem auto;
+}
+
+.filtro-form,
+.cadastro-form {
+  display: grid;
+  gap: 1rem;
+}
+
+.filtro-form {
+  grid-template-columns: repeat(auto-fit, minmax(200px, 1fr));
+  align-items: end;
+}
+
+.cadastro-form {
+  grid-template-columns: repeat(auto-fit, minmax(220px, 1fr));
+}
+
+.nome-field {
+  grid-column: span 2;
+}
+
+@media (max-width: 768px) {
+  .nome-field {
+    grid-column: span 1;
+  }
+}
+
+.filtro-acoes {
+  display: flex;
+  gap: 0.5rem;
+}
+
+.toggle-grid {
+  display: grid;
+  grid-template-columns: repeat(auto-fit, minmax(200px, 1fr));
+  gap: 0.5rem;
+}
+
+.disabled-field {
+  opacity: 0.6;
 }
 
 table {

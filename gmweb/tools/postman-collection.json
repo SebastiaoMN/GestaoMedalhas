@@ -15,6 +15,72 @@
           "path": ["api", "health"]
         }
       }
+      }
+    },
+    {
+      "name": "Listar agraciados",
+      "request": {
+        "method": "GET",
+        "header": [
+          {
+            "key": "Authorization",
+            "value": "Bearer {{token}}",
+            "type": "text"
+          }
+        ],
+        "url": {
+          "raw": "{{baseUrl}}/api/agraciados?tipo=HELIO_COSTA",
+          "host": ["{{baseUrl}}"],
+          "path": ["api", "agraciados"],
+          "query": [
+            { "key": "tipo", "value": "HELIO_COSTA" }
+          ]
+        }
+      }
+    },
+    {
+      "name": "Criar agraciado",
+      "request": {
+        "method": "POST",
+        "header": [
+          {
+            "key": "Authorization",
+            "value": "Bearer {{token}}",
+            "type": "text"
+          },
+          {
+            "key": "Content-Type",
+            "value": "application/json"
+          }
+        ],
+        "body": {
+          "mode": "raw",
+          "raw": "{\n  \"nome\": \"Maria Oliveira\",\n  \"ano\": 2024,\n  \"cpf\": \"12345678909\",\n  \"sexo\": \"F\",\n  \"tipoMedalha\": \"HELIO_COSTA\",\n  \"cargoProfissaoId\": 1,\n  \"comarcaId\": 10,\n  \"enviado\": false,\n  \"disponivelInternet\": true,\n  \"inMemorian\": false,\n  \"homonimo\": false\n}"
+        },
+        "url": {
+          "raw": "{{baseUrl}}/api/agraciados",
+          "host": ["{{baseUrl}}"],
+          "path": ["api", "agraciados"]
+        }
+      }
+    },
+    {
+      "name": "Cargos/Profissões",
+      "request": {
+        "method": "GET",
+        "header": [
+          {
+            "key": "Authorization",
+            "value": "Bearer {{token}}",
+            "type": "text"
+          }
+        ],
+        "url": {
+          "raw": "{{baseUrl}}/api/cargos-profissao",
+          "host": ["{{baseUrl}}"],
+          "path": ["api", "cargos-profissao"]
+        }
+      }
     }
   ]
 }

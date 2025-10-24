@@ -6,7 +6,7 @@ GMWeb modernizes the legacy Delphi application by splitting the solution into a 
 ## Component Diagram
 - **Angular Front-end (`frontend/`)**: Implements the SPA, consumes REST APIs, handles routing and responsive layout via Angular Material.
 - **Spring Boot Back-end (`backend/`)**: Exposes REST endpoints, enforces security, and orchestrates integrations.
-- **Oracle Database**: Stores core medal management data.
+- **Oracle Database**: Stores os cadastros de agraciados, comarcas e cargos/profissões herdados do Delphi.
 - **Keycloak**: Provides identity, authentication, and authorization.
 - **Legacy Systems**: Integrated via REST APIs proxied through the backend.
 - **NGINX**: Acts as reverse proxy, TLS terminator, and static asset server for the Angular build.
@@ -15,7 +15,7 @@ GMWeb modernizes the legacy Delphi application by splitting the solution into a 
 ## Data Flow
 1. Users authenticate against Keycloak and receive JWT access tokens.
 2. Angular SPA sends requests to NGINX, which proxies `/api/*` routes to the Spring Boot service and serves static assets for `/`.
-3. The backend validates JWT tokens, applies authorization policies, and interacts with Oracle using Spring Data JPA.
+3. The backend validates JWT tokens, aplica regras de negócio (CPF, homônimos, unicidade por comarca/ano) e interage com o Oracle usando Spring Data JPA e consultas JDBC pontuais.
 4. Legacy system data is retrieved via the `LegacyClient` WebClient integration.
 
 ## Deployment Topology

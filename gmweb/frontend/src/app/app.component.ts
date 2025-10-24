@@ -19,6 +19,10 @@ export class AppComponent implements OnInit {
     this.authService.init().catch(err => console.error('Keycloak init failed', err));
   }
 
+  get loggedIn(): boolean {
+    return this.authService.isAuthenticated();
+  }
+
   login(): void {
     this.authService.login();
   }
