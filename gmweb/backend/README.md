@@ -8,6 +8,14 @@ Spring Boot service that expõe as APIs REST para cadastro/consulta de agraciado
 - OAuth2 Resource Server preconfigurado para validação de JWTs do Keycloak.
 - Conectividade Oracle via Spring Data JPA + consultas JDBC pontuais.
 - Documentação OpenAPI via SpringDoc e health check em `/api/health`.
+Spring Boot service that exposes RESTful APIs and orchestrates integrations with Oracle Database, Keycloak, and legacy systems.
+
+## Features
+- Modular architecture ready for CQRS/hexagonal extensions.
+- OAuth2 Resource Server preconfigured for Keycloak JWT validation.
+- Oracle database connectivity via Spring Data JPA.
+- OpenAPI/Swagger documentation via SpringDoc.
+- Health endpoint exposed at `/api/health`.
 
 ## Getting Started
 1. Install Java 17 and Maven 3.9+.

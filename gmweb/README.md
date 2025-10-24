@@ -5,6 +5,7 @@ This directory contains the new web-based implementation of the "Gestão de Meda
 - **Angular front-end** com formulários reativos que replicam cadastros/consultas de agraciados.
 - **Spring Boot back-end** com entidades JPA mapeando as tabelas originais, regras de negócio (CPF, homônimos, exclusão lógica) e integrações Oracle/Keycloak.
 - Infraestrutura (Docker/Kubernetes), documentação e artefatos de segurança alinhados ao OWASP.
+This directory contains the new web-based implementation of the "Gestão de Medalhas" platform. The solution is split into an Angular front-end, a Spring Boot back-end, infrastructure assets for Oracle database integration, Keycloak single sign-on, Docker images, Kubernetes manifests, and security-hardening notes aligned with OWASP recommendations.
 
 ```
 gmweb/
