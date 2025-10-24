@@ -1,0 +1,14 @@
+apiVersion: v1
+kind: ConfigMap
+metadata:
+  name: gmweb-backend-config
+  namespace: gmweb
+  labels:
+    app: gmweb-backend
+    tier: backend
+  annotations:
+    owasp.org/hardening: "security-headers, strict-transport"
+data:
+  APPLICATION_PROPS: |
+    SPRING_PROFILES_ACTIVE=k8s
+    LEGACY_API_URL=http://legacy.gmweb.svc.cluster.local:9000

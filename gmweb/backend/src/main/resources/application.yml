@@ -1,0 +1,42 @@
+server:
+  port: 8080
+  servlet:
+    context-path: /gmweb
+
+spring:
+  datasource:
+    url: jdbc:oracle:thin:@//localhost:1521/GMDEV
+    username: gmweb
+    password: changeMe
+    driver-class-name: oracle.jdbc.OracleDriver
+  jpa:
+    hibernate:
+      ddl-auto: validate
+    properties:
+      hibernate:
+        dialect: org.hibernate.dialect.OracleDialect
+  jackson:
+    serialization:
+      indent_output: true
+
+logging:
+  level:
+    org.springframework.security: INFO
+
+keycloak:
+  auth-server-url: http://localhost:8081/realms/gmweb
+  realm: gmweb
+  resource: gmweb-api
+  credentials:
+    secret: changeMe
+  bearer-only: true
+
+legacy:
+  api:
+    url: http://localhost:9000
+
+management:
+  endpoints:
+    web:
+      exposure:
+        include: health,info,metrics
