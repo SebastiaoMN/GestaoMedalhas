@@ -55,6 +55,19 @@ All requests must include a Bearer token issued by Keycloak. The APIs rely on th
 - **Scopes**: `agraciados:write`
 - **Descrição**: Realiza exclusão lógica (marca usuário e data de exclusão) preservando histórico, como no sistema Delphi.
 
+### `POST /gmweb/api/agraciados/disponibilidade-internet`
+- **Scopes**: `agraciados:write`
+- **Descrição**: Marca ou desmarca todos os agraciados de um ano como disponíveis na internet, reproduzindo as rotinas *Disponibiliza na internet* das medalhas M1/M2.
+- **Corpo da requisição**:
+  ```json
+  {
+    "tipo": "HELIO_COSTA",
+    "ano": 2024,
+    "disponivel": true
+  }
+  ```
+- **Resposta**: `204 No Content`.
+
 ### `GET /gmweb/api/cargos-profissao`
 - **Scopes**: `cadastros:read`
 - **Descrição**: Lista cargos/profissões ordenados alfabeticamente.
@@ -78,3 +91,28 @@ All requests must include a Bearer token issued by Keycloak. The APIs rely on th
 ### `GET /gmweb/api/referencias/sexos`
 - **Scopes**: `cadastros:read`
 - **Descrição**: Recupera valores do domínio `SEXO` (CG_REF_CODES) para popular listas.
+
+### `GET /gmweb/api/agraciados/relatorios/ano`
+- **Scopes**: `agraciados:read`
+- **Query Params**: `tipo` (obrigatório) e `ano` (obrigatório).
+- **Descrição**: Lista detalhada (com flags Sim/Não) dos agraciados por ano, equivalente ao relatório “Agraciados por ano”.
+
+### `GET /gmweb/api/agraciados/relatorios/ordem`
+- **Scopes**: `agraciados:read`
+- **Query Params**: `tipo` (obrigatório).
+- **Descrição**: Retorna agraciados ordenados alfabeticamente, espelhando o relatório “Agraciados por ordem alfabética”.
+
+### `GET /gmweb/api/agraciados/relatorios/cargo`
+- **Scopes**: `agraciados:read`
+- **Query Params**: `tipo` (obrigatório) e `cargoId` (opcional).
+- **Descrição**: Relatório filtrado por cargo/profissão, compatível com a listagem Delphi que aceita agraciados sem cargo informado.
+
+### `GET /gmweb/api/agraciados/relatorios/sem-indicacao`
+- **Scopes**: `agraciados:read`
+- **Query Params**: `ano` (obrigatório).
+- **Descrição**: Exibe as comarcas mineiras que não possuem indicação para a Medalha Des. Hélio Costa no ano selecionado.
+
+### `GET /gmweb/api/agraciados/relatorios/minas-gerais`
+- **Scopes**: `agraciados:read`
+- **Query Params**: `ano` (obrigatório).
+- **Descrição**: Gera o arquivo texto no layout exigido pelo Diário Oficial *Minas Gerais* com os agraciados da Medalha Des. Hélio Costa.

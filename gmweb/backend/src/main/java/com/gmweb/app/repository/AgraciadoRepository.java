@@ -4,6 +4,7 @@ import com.gmweb.app.domain.Agraciado;
 import com.gmweb.app.domain.MedalType;
 import org.springframework.data.jpa.repository.EntityGraph;
 import org.springframework.data.jpa.repository.JpaRepository;
+import org.springframework.data.jpa.repository.Modifying;
 import org.springframework.data.jpa.repository.Query;
 import org.springframework.data.repository.query.Param;
 
@@ -56,4 +57,62 @@ public interface AgraciadoRepository extends JpaRepository<Agraciado, Long> {
               and a.dataExclusao is null
             """)
     boolean isCargoProfissaoInUse(@Param("cargoId") Long cargoId);
+
+    @EntityGraph(attributePaths = {"cargoProfissao", "comarca"})
+    @Query("""
+            select a
+            from Agraciado a
+            where a.tipoMedalha = :tipo
+              and a.dataExclusao is null
+              and a.ano = :ano
+            order by a.ano asc, a.nome asc
+            """)
+    List<Agraciado> findActiveByTipoAndAno(@Param("tipo") MedalType tipo,
+                                           @Param("ano") Integer ano);
+
+    @EntityGraph(attributePaths = {"cargoProfissao", "comarca"})
+    @Query("""
+            select a
+            from Agraciado a
+            where a.tipoMedalha = :tipo
+              and a.dataExclusao is null
+            order by a.nome asc
+            """)
+    List<Agraciado> findActiveByTipoOrderByNome(@Param("tipo") MedalType tipo);
+
+    @EntityGraph(attributePaths = {"cargoProfissao", "comarca"})
+    @Query("""
+            select a
+            from Agraciado a
+            where a.tipoMedalha = :tipo
+              and a.dataExclusao is null
+              and (:cargoId is null or a.cargoProfissao.codigo = :cargoId)
+            order by a.comarca.nome asc, a.nome asc
+            """)
+    List<Agraciado> findActiveByTipoAndCargo(@Param("tipo") MedalType tipo,
+                                             @Param("cargoId") Long cargoId);
+
+    @EntityGraph(attributePaths = {"cargoProfissao", "comarca"})
+    @Query("""
+            select a
+            from Agraciado a
+            where a.tipoMedalha = :tipo
+              and a.dataExclusao is null
+              and a.ano = :ano
+            order by a.comarca.nome asc, a.nome asc
+            """)
+    List<Agraciado> findActiveByTipoAndAnoOrderByComarca(@Param("tipo") MedalType tipo,
+                                                         @Param("ano") Integer ano);
+
+    @Modifying(clearAutomatically = true)
+    @Query("""
+            update Agraciado a
+            set a.disponivelInternet = :disponivel
+            where a.tipoMedalha = :tipo
+              and a.ano = :ano
+              and a.dataExclusao is null
+            """)
+    int atualizarDisponibilidadeInternet(@Param("tipo") MedalType tipo,
+                                         @Param("ano") Integer ano,
+                                         @Param("disponivel") boolean disponivel);
 }

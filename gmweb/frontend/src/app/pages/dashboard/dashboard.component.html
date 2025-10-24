@@ -165,3 +165,187 @@
     </ng-template>
   </mat-card-content>
 </mat-card>
+
+<mat-card class="acoes-card">
+  <mat-card-title>Ações coletivas e relatórios</mat-card-title>
+  <mat-card-content>
+    <div class="acoes-grid">
+      <form [formGroup]="disponibilidadeForm" (ngSubmit)="atualizarDisponibilidade()" class="acoes-form">
+        <h3>Disponibilizar na internet</h3>
+        <mat-form-field appearance="outline">
+          <mat-label>Tipo de medalha</mat-label>
+          <mat-select formControlName="tipo">
+            <mat-option value="HELIO_COSTA">Medalha Des. Hélio Costa</mat-option>
+            <mat-option value="COLAR_MERITO">Medalha Colar do Mérito</mat-option>
+          </mat-select>
+        </mat-form-field>
+        <mat-form-field appearance="outline">
+          <mat-label>Ano</mat-label>
+          <input matInput type="number" formControlName="ano" required min="1900" />
+        </mat-form-field>
+        <mat-slide-toggle formControlName="disponivel">Marcar como disponível</mat-slide-toggle>
+        <button mat-stroked-button color="primary" type="submit">Atualizar disponibilidade</button>
+      </form>
+
+      <form [formGroup]="relatorioAnoForm" class="acoes-form">
+        <h3>Relatórios por ano</h3>
+        <mat-form-field appearance="outline">
+          <mat-label>Tipo de medalha</mat-label>
+          <mat-select formControlName="tipo">
+            <mat-option value="HELIO_COSTA">Medalha Des. Hélio Costa</mat-option>
+            <mat-option value="COLAR_MERITO">Medalha Colar do Mérito</mat-option>
+          </mat-select>
+        </mat-form-field>
+        <mat-form-field appearance="outline">
+          <mat-label>Ano</mat-label>
+          <input matInput type="number" formControlName="ano" required min="1900" />
+        </mat-form-field>
+        <div class="acoes-botoes">
+          <button mat-stroked-button color="primary" type="button" (click)="gerarRelatorioAno()">Gerar relatório</button>
+          <button mat-button type="button" (click)="baixarMinasGerais()">Arquivo Minas Gerais</button>
+        </div>
+      </form>
+
+      <form [formGroup]="relatorioCargoForm" class="acoes-form">
+        <h3>Relatórios gerais</h3>
+        <mat-form-field appearance="outline">
+          <mat-label>Tipo de medalha</mat-label>
+          <mat-select formControlName="tipo">
+            <mat-option value="HELIO_COSTA">Medalha Des. Hélio Costa</mat-option>
+            <mat-option value="COLAR_MERITO">Medalha Colar do Mérito</mat-option>
+          </mat-select>
+        </mat-form-field>
+        <mat-form-field appearance="outline">
+          <mat-label>Cargo / Profissão</mat-label>
+          <mat-select formControlName="cargoProfissaoId">
+            <mat-option [value]="null">Todos</mat-option>
+            <mat-option *ngFor="let cargo of cargos()" [value]="cargo.codigo">{{ cargo.descricao }}</mat-option>
+          </mat-select>
+        </mat-form-field>
+        <div class="acoes-botoes">
+          <button mat-stroked-button color="primary" type="button" (click)="gerarRelatorioOrdem()">Relatório por ordem</button>
+          <button mat-stroked-button color="primary" type="button" (click)="gerarRelatorioCargo()">Relatório por cargo</button>
+        </div>
+      </form>
+
+      <form [formGroup]="semIndicacaoForm" class="acoes-form" (ngSubmit)="carregarSemIndicacao()">
+        <h3>Comarcas sem indicação</h3>
+        <mat-form-field appearance="outline">
+          <mat-label>Ano</mat-label>
+          <input matInput type="number" formControlName="ano" required min="1900" />
+        </mat-form-field>
+        <button mat-stroked-button color="primary" type="submit">Consultar</button>
+      </form>
+    </div>
+  </mat-card-content>
+</mat-card>
+
+<mat-card *ngIf="relatorioAno().length">
+  <mat-card-title>Relatório por ano</mat-card-title>
+  <mat-card-content>
+    <table class="relatorio-table">
+      <thead>
+        <tr>
+          <th>Código</th>
+          <th>Nome</th>
+          <th>Ano</th>
+          <th>Comarca</th>
+          <th>Cargo</th>
+          <th>Enviado</th>
+          <th>Internet</th>
+          <th>In memoriam</th>
+          <th>Homônimo</th>
+        </tr>
+      </thead>
+      <tbody>
+        <tr *ngFor="let item of relatorioAno()">
+          <td>{{ item.codigo }}</td>
+          <td>{{ item.nome }}</td>
+          <td>{{ item.ano }}</td>
+          <td>{{ item.comarca || '-' }}</td>
+          <td>{{ item.cargoProfissao || '-' }}</td>
+          <td>{{ item.enviado }}</td>
+          <td>{{ item.disponivelInternet }}</td>
+          <td>{{ item.inMemorian }}</td>
+          <td>{{ item.homonimo }}</td>
+        </tr>
+      </tbody>
+    </table>
+  </mat-card-content>
+</mat-card>
+
+<mat-card *ngIf="relatorioOrdem().length">
+  <mat-card-title>Relatório por ordem alfabética</mat-card-title>
+  <mat-card-content>
+    <table class="relatorio-table">
+      <thead>
+        <tr>
+          <th>Código</th>
+          <th>Nome</th>
+          <th>Ano</th>
+          <th>Comarca</th>
+          <th>Cargo</th>
+        </tr>
+      </thead>
+      <tbody>
+        <tr *ngFor="let item of relatorioOrdem()">
+          <td>{{ item.codigo }}</td>
+          <td>{{ item.nome }}</td>
+          <td>{{ item.ano }}</td>
+          <td>{{ item.comarca || '-' }}</td>
+          <td>{{ item.cargoProfissao || '-' }}</td>
+        </tr>
+      </tbody>
+    </table>
+  </mat-card-content>
+</mat-card>
+
+<mat-card *ngIf="relatorioCargo().length">
+  <mat-card-title>Relatório por cargo/profissão</mat-card-title>
+  <mat-card-content>
+    <table class="relatorio-table">
+      <thead>
+        <tr>
+          <th>Código</th>
+          <th>Nome</th>
+          <th>Ano</th>
+          <th>Comarca</th>
+          <th>Cargo</th>
+        </tr>
+      </thead>
+      <tbody>
+        <tr *ngFor="let item of relatorioCargo()">
+          <td>{{ item.codigo }}</td>
+          <td>{{ item.nome }}</td>
+          <td>{{ item.ano }}</td>
+          <td>{{ item.comarca || '-' }}</td>
+          <td>{{ item.cargoProfissao || '-' }}</td>
+        </tr>
+      </tbody>
+    </table>
+  </mat-card-content>
+</mat-card>
+
+<mat-card *ngIf="semIndicacao().length">
+  <mat-card-title>Comarcas sem indicação (Medalha Des. Hélio Costa)</mat-card-title>
+  <mat-card-content>
+    <table class="relatorio-table">
+      <thead>
+        <tr>
+          <th>Código</th>
+          <th>Comarca</th>
+          <th>Ano</th>
+        </tr>
+      </thead>
+      <tbody>
+        <tr *ngFor="let item of semIndicacao()">
+          <td>{{ item.codigo }}</td>
+          <td>{{ item.comarca }}</td>
+          <td>{{ item.ano }}</td>
+        </tr>
+      </tbody>
+    </table>
+  </mat-card-content>
+</mat-card>
+
+

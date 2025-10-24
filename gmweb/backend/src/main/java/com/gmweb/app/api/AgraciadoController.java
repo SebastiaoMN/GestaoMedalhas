@@ -4,6 +4,7 @@ import com.gmweb.app.domain.MedalType;
 import com.gmweb.app.service.AgraciadoService;
 import com.gmweb.app.web.dto.AgraciadoRequest;
 import com.gmweb.app.web.dto.AgraciadoResponse;
+import com.gmweb.app.web.dto.AtualizarDisponibilidadeInternetRequest;
 import jakarta.validation.Valid;
 import org.springframework.http.ResponseEntity;
 import org.springframework.security.access.prepost.PreAuthorize;
@@ -67,6 +68,13 @@ public class AgraciadoController {
         Authentication authentication = SecurityContextHolder.getContext().getAuthentication();
         String usuario = authentication != null ? authentication.getName() : "system";
         agraciadoService.excluir(codigo, usuario);
+        return ResponseEntity.noContent().build();
+    }
+
+    @PostMapping("/disponibilidade-internet")
+    @PreAuthorize("hasAuthority('SCOPE_agraciados:write')")
+    public ResponseEntity<Void> atualizarDisponibilidade(@Valid @RequestBody AtualizarDisponibilidadeInternetRequest request) {
+        agraciadoService.atualizarDisponibilidadeInternet(request.tipo(), request.ano(), request.disponivel());
         return ResponseEntity.noContent().build();
     }
 }

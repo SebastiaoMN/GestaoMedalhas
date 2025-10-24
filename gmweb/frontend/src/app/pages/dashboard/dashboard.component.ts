@@ -14,9 +14,11 @@ import { MatSnackBar, MatSnackBarModule } from '@angular/material/snack-bar';
 import {
   Agraciado,
   AgraciadoPayload,
+  AgraciadoRelatorio,
   AgraciadoService,
   CargoProfissao,
   Comarca,
+  ComarcaSemIndicacao,
   MedalType,
   SexoOption
 } from '../../services/agraciado.service';
@@ -54,6 +56,10 @@ export class DashboardComponent implements OnInit {
   sexos = signal<SexoOption[]>([]);
   displayedColumns = ['codigo', 'nome', 'ano', 'cargo', 'comarca', 'enviado', 'internet', 'acoes'];
   selecionado = signal<Agraciado | null>(null);
+  relatorioAno = signal<AgraciadoRelatorio[]>([]);
+  relatorioOrdem = signal<AgraciadoRelatorio[]>([]);
+  relatorioCargo = signal<AgraciadoRelatorio[]>([]);
+  semIndicacao = signal<ComarcaSemIndicacao[]>([]);
 
   filtroForm: FormGroup = this.fb.group({
     tipo: ['HELIO_COSTA' as MedalType, Validators.required],
@@ -73,6 +79,26 @@ export class DashboardComponent implements OnInit {
     disponivelInternet: [false],
     inMemorian: [false],
     homonimo: [false]
+  });
+
+  disponibilidadeForm: FormGroup = this.fb.group({
+    tipo: ['HELIO_COSTA' as MedalType, Validators.required],
+    ano: [new Date().getFullYear(), [Validators.required, Validators.min(1900)]],
+    disponivel: [true, Validators.required]
+  });
+
+  relatorioAnoForm: FormGroup = this.fb.group({
+    tipo: ['HELIO_COSTA' as MedalType, Validators.required],
+    ano: [new Date().getFullYear(), [Validators.required, Validators.min(1900)]]
+  });
+
+  relatorioCargoForm: FormGroup = this.fb.group({
+    tipo: ['HELIO_COSTA' as MedalType, Validators.required],
+    cargoProfissaoId: [null as number | null]
+  });
+
+  semIndicacaoForm: FormGroup = this.fb.group({
+    ano: [new Date().getFullYear(), [Validators.required, Validators.min(1900)]]
   });
 
   somenteLeituraComarca = computed(() => this.cadastroForm.get('tipoMedalha')?.value === 'COLAR_MERITO');
@@ -197,6 +223,84 @@ export class DashboardComponent implements OnInit {
     this.service.listarSexos().subscribe({
       next: sexos => this.sexos.set(sexos),
       error: () => this.snackbar.open('Erro ao carregar sexos', 'Fechar', { duration: 5000 })
+    });
+  }
+
+  atualizarDisponibilidade(): void {
+    if (this.disponibilidadeForm.invalid) {
+      this.disponibilidadeForm.markAllAsTouched();
+      return;
+    }
+    const { tipo, ano, disponivel } = this.disponibilidadeForm.value as { tipo: MedalType; ano: number; disponivel: boolean };
+    this.service.atualizarDisponibilidadeInternet({ tipo, ano, disponivel }).subscribe({
+      next: () => {
+        this.snackbar.open('Disponibilidade atualizada', 'Fechar', { duration: 3000 });
+        this.buscar();
+      },
+      error: err => {
+        const mensagem = err?.error?.message ?? 'Falha ao atualizar disponibilidade';
+        this.snackbar.open(mensagem, 'Fechar', { duration: 6000 });
+      }
+    });
+  }
+
+  gerarRelatorioAno(): void {
+    if (this.relatorioAnoForm.invalid) {
+      this.relatorioAnoForm.markAllAsTouched();
+      return;
+    }
+    const { tipo, ano } = this.relatorioAnoForm.value as { tipo: MedalType; ano: number };
+    this.service.relatorioPorAno(tipo, ano).subscribe({
+      next: dados => this.relatorioAno.set(dados),
+      error: () => this.snackbar.open('Falha ao gerar relatório por ano', 'Fechar', { duration: 5000 })
+    });
+  }
+
+  gerarRelatorioOrdem(): void {
+    const tipo = this.relatorioCargoForm.get('tipo')?.value as MedalType;
+    this.service.relatorioPorOrdem(tipo).subscribe({
+      next: dados => this.relatorioOrdem.set(dados),
+      error: () => this.snackbar.open('Falha ao gerar relatório por ordem', 'Fechar', { duration: 5000 })
+    });
+  }
+
+  gerarRelatorioCargo(): void {
+    const tipo = this.relatorioCargoForm.get('tipo')?.value as MedalType;
+    const cargoId = this.relatorioCargoForm.get('cargoProfissaoId')?.value as number | null;
+    this.service.relatorioPorCargo(tipo, cargoId ?? undefined).subscribe({
+      next: dados => this.relatorioCargo.set(dados),
+      error: () => this.snackbar.open('Falha ao gerar relatório por cargo/profissão', 'Fechar', { duration: 5000 })
+    });
+  }
+
+  carregarSemIndicacao(): void {
+    if (this.semIndicacaoForm.invalid) {
+      this.semIndicacaoForm.markAllAsTouched();
+      return;
+    }
+    const { ano } = this.semIndicacaoForm.value as { ano: number };
+    this.service.comarcasSemIndicacao(ano).subscribe({
+      next: dados => this.semIndicacao.set(dados),
+      error: () => this.snackbar.open('Falha ao carregar comarcas sem indicação', 'Fechar', { duration: 5000 })
+    });
+  }
+
+  baixarMinasGerais(): void {
+    if (this.relatorioAnoForm.invalid) {
+      this.relatorioAnoForm.markAllAsTouched();
+      return;
+    }
+    const ano = this.relatorioAnoForm.get('ano')?.value as number;
+    this.service.baixarMinasGerais(ano).subscribe({
+      next: blob => {
+        const url = window.URL.createObjectURL(blob);
+        const link = document.createElement('a');
+        link.href = url;
+        link.download = `minas-gerais-${ano}.txt`;
+        link.click();
+        window.URL.revokeObjectURL(url);
+      },
+      error: () => this.snackbar.open('Falha ao gerar arquivo Minas Gerais', 'Fechar', { duration: 5000 })
     });
   }
 }

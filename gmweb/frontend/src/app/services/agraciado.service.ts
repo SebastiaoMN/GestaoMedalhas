@@ -50,6 +50,24 @@ export interface SexoOption {
   descricao: string;
 }
 
+export interface AgraciadoRelatorio {
+  codigo: number;
+  nome: string;
+  ano: number;
+  comarca: string | null;
+  cargoProfissao: string | null;
+  enviado: string;
+  disponivelInternet: string;
+  inMemorian: string;
+  homonimo: string;
+}
+
+export interface ComarcaSemIndicacao {
+  codigo: number;
+  comarca: string;
+  ano: number;
+}
+
 @Injectable({ providedIn: 'root' })
 export class AgraciadoService {
   private http = inject(HttpClient);
@@ -87,5 +105,37 @@ export class AgraciadoService {
 
   listarSexos(): Observable<SexoOption[]> {
     return this.http.get<SexoOption[]>('/api/referencias/sexos');
+  }
+
+  atualizarDisponibilidadeInternet(payload: { tipo: MedalType; ano: number; disponivel: boolean }): Observable<void> {
+    return this.http.post<void>('/api/agraciados/disponibilidade-internet', payload);
+  }
+
+  relatorioPorAno(tipo: MedalType, ano: number): Observable<AgraciadoRelatorio[]> {
+    const params = new HttpParams().set('tipo', tipo).set('ano', ano.toString());
+    return this.http.get<AgraciadoRelatorio[]>('/api/agraciados/relatorios/ano', { params });
+  }
+
+  relatorioPorOrdem(tipo: MedalType): Observable<AgraciadoRelatorio[]> {
+    const params = new HttpParams().set('tipo', tipo);
+    return this.http.get<AgraciadoRelatorio[]>('/api/agraciados/relatorios/ordem', { params });
+  }
+
+  relatorioPorCargo(tipo: MedalType, cargoId?: number | null): Observable<AgraciadoRelatorio[]> {
+    let params = new HttpParams().set('tipo', tipo);
+    if (cargoId != null) {
+      params = params.set('cargoId', cargoId.toString());
+    }
+    return this.http.get<AgraciadoRelatorio[]>('/api/agraciados/relatorios/cargo', { params });
+  }
+
+  comarcasSemIndicacao(ano: number): Observable<ComarcaSemIndicacao[]> {
+    const params = new HttpParams().set('ano', ano.toString());
+    return this.http.get<ComarcaSemIndicacao[]>('/api/agraciados/relatorios/sem-indicacao', { params });
+  }
+
+  baixarMinasGerais(ano: number): Observable<Blob> {
+    const params = new HttpParams().set('ano', ano.toString());
+    return this.http.get('/api/agraciados/relatorios/minas-gerais', { params, responseType: 'blob' });
   }
 }

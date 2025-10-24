@@ -7,32 +7,42 @@ import com.gmweb.app.domain.MedalType;
 import com.gmweb.app.repository.AgraciadoRepository;
 import com.gmweb.app.repository.CargoProfissaoRepository;
 import com.gmweb.app.repository.ComarcaRepository;
+import com.gmweb.app.repository.RelatorioRepository;
 import com.gmweb.app.service.support.CpfValidator;
+import com.gmweb.app.web.dto.AgraciadoRelatorioResponse;
 import com.gmweb.app.web.dto.AgraciadoRequest;
 import com.gmweb.app.web.dto.AgraciadoResponse;
+import com.gmweb.app.web.dto.ComarcaSemIndicacaoResponse;
 import jakarta.persistence.EntityNotFoundException;
 import org.springframework.stereotype.Service;
 import org.springframework.transaction.annotation.Transactional;
 import org.springframework.util.StringUtils;
 
 import java.time.LocalDateTime;
+import java.util.Comparator;
 import java.util.List;
+import java.util.Locale;
 
 @Service
 public class AgraciadoService {
 
     private static final long COMARCA_PADRAO_MEDALHA_COLAR = 24L;
+    private static final String SIM = "Sim";
+    private static final String NAO = "Não";
 
     private final AgraciadoRepository agraciadoRepository;
     private final CargoProfissaoRepository cargoProfissaoRepository;
     private final ComarcaRepository comarcaRepository;
+    private final RelatorioRepository relatorioRepository;
 
     public AgraciadoService(AgraciadoRepository agraciadoRepository,
                             CargoProfissaoRepository cargoProfissaoRepository,
-                            ComarcaRepository comarcaRepository) {
+                            ComarcaRepository comarcaRepository,
+                            RelatorioRepository relatorioRepository) {
         this.agraciadoRepository = agraciadoRepository;
         this.cargoProfissaoRepository = cargoProfissaoRepository;
         this.comarcaRepository = comarcaRepository;
+        this.relatorioRepository = relatorioRepository;
     }
 
     @Transactional(readOnly = true)
@@ -77,6 +87,73 @@ public class AgraciadoService {
                 .orElseThrow(() -> new EntityNotFoundException("Agraciado não encontrado"));
         agraciado.setUsuarioExclusao(usuarioAtual);
         agraciado.setDataExclusao(LocalDateTime.now());
+    }
+
+    @Transactional
+    public void atualizarDisponibilidadeInternet(MedalType tipo, Integer ano, boolean disponivel) {
+        validarAno(ano);
+        int atualizados = agraciadoRepository.atualizarDisponibilidadeInternet(tipo, ano, disponivel);
+        if (atualizados == 0) {
+            throw new IllegalArgumentException("Nenhum agraciado encontrado para o ano informado");
+        }
+    }
+
+    @Transactional(readOnly = true)
+    public List<AgraciadoRelatorioResponse> relatorioPorAno(MedalType tipo, Integer ano) {
+        validarAno(ano);
+        return agraciadoRepository.findActiveByTipoAndAno(tipo, ano)
+                .stream()
+                .map(this::toRelatorio)
+                .toList();
+    }
+
+    @Transactional(readOnly = true)
+    public List<AgraciadoRelatorioResponse> relatorioPorOrdem(MedalType tipo) {
+        return agraciadoRepository.findActiveByTipoOrderByNome(tipo)
+                .stream()
+                .map(this::toRelatorio)
+                .toList();
+    }
+
+    @Transactional(readOnly = true)
+    public List<AgraciadoRelatorioResponse> relatorioPorCargo(MedalType tipo, Long cargoId) {
+        return agraciadoRepository.findActiveByTipoAndCargo(tipo, cargoId)
+                .stream()
+                .map(this::toRelatorio)
+                .toList();
+    }
+
+    @Transactional(readOnly = true)
+    public List<ComarcaSemIndicacaoResponse> comarcasSemIndicacao(Integer ano) {
+        validarAno(ano);
+        return relatorioRepository.listarComarcasSemIndicacao(ano);
+    }
+
+    @Transactional(readOnly = true)
+    public String gerarArquivoMinasGerais(Integer ano) {
+        validarAno(ano);
+        List<Agraciado> agraciados = agraciadoRepository
+                .findActiveByTipoAndAnoOrderByComarca(MedalType.HELIO_COSTA, ano);
+        StringBuilder builder = new StringBuilder();
+        builder.append("              MEDALHA \"DESEMBARGADOR HÉLIO COSTA\"")
+                .append('\n')
+                .append("De acordo com as Resoluções nºs 269/95 e 362/2000, as seguintes")
+                .append('\n')
+                .append("personalidades, escolhidas por comissões locais, serão agraciadas com")
+                .append('\n')
+                .append("a Medalha \"Des. Hélio Costa\" neste ano, em cerimônias a serem")
+                .append('\n')
+                .append("realizadas nas respectivas comarcas:")
+                .append('\n')
+                .append('\n');
+        agraciados.stream()
+                .sorted(Comparator.comparing(a -> a.getComarca() != null ? a.getComarca().getNome() : "", String.CASE_INSENSITIVE_ORDER))
+                .forEach(agraciado -> {
+                    String comarcaNome = agraciado.getComarca() != null ? agraciado.getComarca().getNome() : "";
+                    String linha = String.format(Locale.ROOT, "%-30s%s", comarcaNome, agraciado.getNome());
+                    builder.append(linha).append('\n');
+                });
+        return builder.toString();
     }
 
     private void aplicarDados(Agraciado agraciado, AgraciadoRequest request) {
@@ -193,5 +270,29 @@ public class AgraciadoService {
                 Boolean.TRUE.equals(agraciado.getInMemorian()),
                 Boolean.TRUE.equals(agraciado.getHomonimo())
         );
+    }
+
+    private AgraciadoRelatorioResponse toRelatorio(Agraciado agraciado) {
+        return new AgraciadoRelatorioResponse(
+                agraciado.getCodigo(),
+                agraciado.getNome(),
+                agraciado.getAno(),
+                agraciado.getComarca() != null ? agraciado.getComarca().getNome() : null,
+                agraciado.getCargoProfissao() != null ? agraciado.getCargoProfissao().getDescricao() : null,
+                paraSimNao(agraciado.getEnviado()),
+                paraSimNao(agraciado.getDisponivelInternet()),
+                paraSimNao(agraciado.getInMemorian()),
+                paraSimNao(agraciado.getHomonimo())
+        );
+    }
+
+    private String paraSimNao(Boolean valor) {
+        return Boolean.TRUE.equals(valor) ? SIM : NAO;
+    }
+
+    private void validarAno(Integer ano) {
+        if (ano == null || ano < 1900) {
+            throw new IllegalArgumentException("O ano informado é inválido");
+        }
     }
 }
