@@ -1,0 +1,6 @@
+{
+  "athletes": [
+    { "id": "1", "name": "Ana Silva", "club": "Equipe A" },
+    { "id": "2", "name": "Bruno Costa", "club": "Equipe B" }
+  ]
+}
